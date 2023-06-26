@@ -1,0 +1,19 @@
+H264AVCEncoderLibTestStatic -pf encoder.cfg		//以encoder.cfg为配置文件进行SVC编码
+BitStreamExtractorStaticd test.264    			//查看test.264各层信息
+BitStreamExtractorStaticd test.264 out3.svc -sl 3		// 将test.264文件的第三层保存为out.svc文件
+H264AVCDecoderLibTestStatic BitstreamFile YuvOutputFile 	//将BitstreamFile解码为YuvOutputFile
+ffmpeg -s 1280x960 -pix_fmt yuv420p -i enc.yuv test.mp4	//将enc.yuv文件编码为test.mp4文件
+ffplay -video_size 1280x960 -i enc.yuv			//播放enc.yuv文件
+ffmpeg -threads 16 -i input.mp4 -vf pp=lb -vsync 0 -pix_fmt yuv420p output.yuv 	//将input.mp4转为output.yuv
+
+GopSize、frame rate、frame rate out共同决定帧率。
+SourceWidth、SourceHeight决定分辨率，不同分辨率需要不同的层配置文件
+当不同层的分辨率相同时，默认用不同QP参数实现质量分级
+
+
+encoder.cfg
+CgsSnrRefinement                  0          # SNR refinement as 1: MGS; 0: CGS
+
+layer-i.cfg
+ProfileIdc              0                 # value of profile_idc (or 0 for auto detection)
+InterLayerPred          2                  # Inter-layer Pred. (0:no, 1:yes, 2:adap.)
